@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },
@@ -459,11 +459,6 @@ export default function App() {
     { price: 'Rp 450.000 (30 DAY)', spec: '16 CPU · 32 GB RAM · 400 GB SSD' },
   ]), [])
 
-  const chrStock = useMemo(() => ([
-    { region: 'Singapore · Equinix SG1', spec: '2 GB RAM · 15 GB SSD · 2 Cores · 1 IPv4 · 200 Mbps Unmetered', price: 'Rp 550.000' },
-    { region: 'Indonesia · Gedung Tifa, Jakarta', spec: '2 GB RAM · 15 GB SSD · 2 Cores · 1 IPv4 · 300 Mbps Unmetered', price: 'Rp 550.000' },
-  ]), [])
-
   return (
     <div className="min-h-screen w-full bg-slate-950 overflow-x-hidden">
       {/* Animated gradient blobs */}
@@ -623,18 +618,6 @@ export default function App() {
           <Badge color="from-indigo-600 to-fuchsia-600">Anti DDoS • Dedicated Server</Badge>
         </motion.div>
         <motion.p className="mt-3 text-sm text-slate-400" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>Harga dapat berubah sewaktu-waktu.</motion.p>
-      </Section>
-
-      <Section title="INFO STOK DO BIL CC" tag="Stok Khusus" description="VPS CHR Unmetered (Singapura & Indonesia)">
-        <motion.div className="grid gap-6 sm:grid-cols-2" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
-          {chrStock.map((c, i) => (
-            <motion.div key={i} variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white backdrop-blur">
-              <div className="text-sm text-slate-300">{c.region}</div>
-              <div className="mt-2 text-slate-200">{c.spec}</div>
-              <div className="mt-3 text-xl font-extrabold">{c.price}</div>
-            </motion.div>
-          ))}
-        </motion.div>
       </Section>
 
       {/* Recommendation */}
