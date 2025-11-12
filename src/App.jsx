@@ -1,36 +1,80 @@
 import React, { useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 } })
+}
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } }
+}
 
 function Badge({ children, color = 'from-fuchsia-500 to-indigo-500' }) {
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${color} px-4 py-1.5 text-white text-sm shadow-lg shadow-black/10`}>{children}</span>
+    <motion.span
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: '-20% 0px' }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${color} px-4 py-1.5 text-white text-sm shadow-lg shadow-black/10`}
+    >
+      {children}
+    </motion.span>
   )
 }
 
 function Stat({ icon, label, value }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-slate-300">
+    <motion.div className="flex items-center gap-2 text-sm text-slate-300" variants={fadeInUp}>
       <span className="text-lg">{icon}</span>
       <span className="text-slate-400">{label}:</span>
       <span className="font-semibold text-white">{value}</span>
-    </div>
+    </motion.div>
   )
 }
 
-function PlanCard({ title, subtitle, emoji, price, features = [], highlight = false, ribbon, accent = 'from-indigo-500/20 to-sky-500/20', border = 'border-indigo-400/30' }) {
+function PlanCard({ title, subtitle, emoji, price, features = [], highlight = false, ribbon, accent = 'from-indigo-500/20 to-sky-500/20', border = 'border-indigo-400/30', i = 0 }) {
   return (
-    <div className={`group relative rounded-2xl border ${border} bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl hover:shadow-indigo-500/20`}>\n      {/* Glow */}
-      <div className={`pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b ${accent} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+    <motion.div
+      custom={i}
+      variants={fadeInUp}
+      whileHover={{ y: -6, scale: 1.02 }}
+      whileTap={{ scale: 0.995 }}
+      className={`group relative rounded-2xl border ${border} bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:bg-white/10 hover:shadow-2xl hover:shadow-indigo-500/20`}
+    >
+      {/* Glow */}
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className={`pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b ${accent}`} />
 
       {ribbon && (
-        <div className="absolute -right-2 -top-2 rotate-3 rounded-md bg-gradient-to-r from-amber-500 to-pink-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+        <motion.div
+          initial={{ rotate: 6, y: -8, opacity: 0 }}
+          animate={{ rotate: 3, y: 0, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+          className="absolute -right-2 -top-2 rounded-md bg-gradient-to-r from-amber-500 to-pink-500 px-3 py-1 text-xs font-bold text-white shadow-lg"
+        >
           {ribbon}
-        </div>
+        </motion.div>
       )}
 
       <div className="relative z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{emoji}</div>
+            <motion.div
+              initial={{ rotate: -8, scale: 0.9, opacity: 0 }}
+              whileInView={{ rotate: 0, scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+              className="text-3xl"
+            >
+              {emoji}
+            </motion.div>
             <div>
               <h3 className="text-lg font-bold tracking-tight text-white">{title}</h3>
               {subtitle && <p className="text-xs text-slate-300">{subtitle}</p>}
@@ -42,11 +86,11 @@ function PlanCard({ title, subtitle, emoji, price, features = [], highlight = fa
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-2">
+        <motion.div className="mt-4 grid grid-cols-1 gap-2" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {features.map((f, idx) => (
             <Stat key={idx} icon={f.icon} label={f.label} value={f.value} />
           ))}
-        </div>
+        </motion.div>
 
         {highlight && (
           <div className="mt-5">
@@ -54,14 +98,14 @@ function PlanCard({ title, subtitle, emoji, price, features = [], highlight = fa
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 function Section({ title, tag, description, children }) {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <motion.div className="mb-6 flex items-end justify-between gap-4" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
         <div>
           <div className="mb-3">
             <Badge>{tag}</Badge>
@@ -69,7 +113,7 @@ function Section({ title, tag, description, children }) {
           <h2 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">{title}</h2>
           {description && <p className="mt-2 text-slate-300">{description}</p>}
         </div>
-      </div>
+      </motion.div>
       {children}
     </section>
   )
@@ -421,22 +465,30 @@ export default function App() {
   ]), [])
 
   return (
-    <div className="min-h-screen w-full bg-slate-950">
-      {/* Gradient backdrop */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-10%] -translate-x-1/2 blur-3xl">
+    <div className="min-h-screen w-full bg-slate-950 overflow-x-hidden">
+      {/* Animated gradient blobs */}
+      <motion.div className="pointer-events-none fixed inset-0 -z-10" initial={false}>
+        <motion.div
+          className="absolute left-1/2 top-[-10%] -translate-x-1/2 blur-3xl"
+          animate={{ y: [0, -20, 0] }}
+          transition={{ repeat: Infinity, duration: 14, ease: 'easeInOut' }}
+        >
           <div className="h-[600px] w-[900px] rounded-full bg-gradient-to-br from-fuchsia-500/20 via-indigo-500/20 to-sky-500/20" />
-        </div>
-        <div className="absolute right-0 bottom-[-10%] blur-3xl">
+        </motion.div>
+        <motion.div
+          className="absolute right-0 bottom-[-10%] blur-3xl"
+          animate={{ y: [0, 20, 0] }}
+          transition={{ repeat: Infinity, duration: 16, ease: 'easeInOut' }}
+        >
           <div className="h-[500px] w-[700px] rounded-full bg-gradient-to-tr from-emerald-400/10 via-cyan-400/10 to-purple-400/10" />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Hero */}
       <header className="mx-auto w-full max-w-6xl px-4 pt-14">
-        <div className="flex items-center justify-between">
+        <motion.div className="flex items-center justify-between" variants={fadeInUp} initial="hidden" animate="show">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-white/10 p-2 text-2xl backdrop-blur">⚡️</div>
+            <motion.div initial={{ rotate: -12 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 140 }} className="rounded-xl bg-white/10 p-2 text-2xl backdrop-blur">⚡️</motion.div>
             <span className="text-lg font-bold tracking-tight text-white">VPS Showcase</span>
           </div>
           <div className="hidden gap-2 sm:flex">
@@ -444,141 +496,150 @@ export default function App() {
             <Badge color="from-sky-500 to-blue-600">Dedicated Server</Badge>
             <Badge color="from-amber-500 to-orange-600">Bisa Perpanjang</Badge>
           </div>
-        </div>
+        </motion.div>
 
         <div className="mt-10 grid items-center gap-8 md:grid-cols-2">
-          <div>
+          <motion.div variants={fadeInUp} initial="hidden" animate="show">
             <div className="mb-4">
               <Badge color="from-indigo-600 to-fuchsia-600">Premium Cloud • Multiple Regions</Badge>
             </div>
-            <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white md:text-6xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="text-4xl font-extrabold leading-tight tracking-tight text-white md:text-6xl"
+            >
               Temukan VPS Terbaik<br />Untuk Kebutuhanmu
-            </h1>
-            <p className="mt-4 max-w-xl text-lg text-slate-300">
+            </motion.h1>
+            <motion.p className="mt-4 max-w-xl text-lg text-slate-300" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.6 }}>
               Pilih dari jajaran paket OVH, VULTR, LINODE, hingga KVM. Semua dengan performa tinggi, jaringan cepat, dan harga bersahabat.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#recommend" className="rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-5 py-3 text-white shadow-lg shadow-fuchsia-600/20 transition hover:scale-[1.02]">Rekomendasi Saya</a>
-              <a href="#plans" className="rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-white backdrop-blur transition hover:bg-white/10">Lihat Paket</a>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-tr from-fuchsia-500/20 via-sky-500/20 to-emerald-400/20 blur-2xl" />
+            </motion.p>
+            <motion.div className="mt-6 flex flex-wrap gap-3" variants={stagger} initial="hidden" animate="show">
+              <motion.a href="#recommend" className="rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-5 py-3 text-white shadow-lg shadow-fuchsia-600/20 transition hover:scale-[1.02]" variants={fadeInUp}>Rekomendasi Saya</motion.a>
+              <motion.a href="#plans" className="rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-white backdrop-blur transition hover:bg-white/10" variants={fadeInUp}>Lihat Paket</motion.a>
+            </motion.div>
+          </motion.div>
+          <motion.div className="relative" initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <motion.div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-tr from-fuchsia-500/20 via-sky-500/20 to-emerald-400/20 blur-2xl" animate={{ opacity: [0.6, 0.9, 0.6] }} transition={{ repeat: Infinity, duration: 6 }} />
             <div className="rounded-3xl border border-white/20 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-indigo-400/30 bg-gradient-to-b from-indigo-500/10 to-sky-500/10 p-4 text-white">
+              <motion.div className="grid grid-cols-2 gap-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
+                <motion.div variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-indigo-400/30 bg-gradient-to-b from-indigo-500/10 to-sky-500/10 p-4 text-white">
                   <div className="text-2xl">🚀</div>
                   <p className="mt-2 text-sm text-slate-200">NVMe Storage</p>
                   <p className="text-xl font-extrabold">Up to 160 GB</p>
-                </div>
-                <div className="rounded-2xl border border-fuchsia-400/30 bg-gradient-to-b from-fuchsia-500/10 to-pink-500/10 p-4 text-white">
+                </motion.div>
+                <motion.div variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-fuchsia-400/30 bg-gradient-to-b from-fuchsia-500/10 to-pink-500/10 p-4 text-white">
                   <div className="text-2xl">🧠</div>
                   <p className="mt-2 text-sm text-slate-200">vCPU</p>
                   <p className="text-xl font-extrabold">Up to 16</p>
-                </div>
-                <div className="rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-emerald-500/10 to-teal-500/10 p-4 text-white">
+                </motion.div>
+                <motion.div variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-emerald-500/10 to-teal-500/10 p-4 text-white">
                   <div className="text-2xl">⚡</div>
                   <p className="mt-2 text-sm text-slate-200">Bandwidth</p>
                   <p className="text-xl font-extrabold">Up to 5 TB</p>
-                </div>
-                <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-orange-500/10 p-4 text-white">
+                </motion.div>
+                <motion.div variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-orange-500/10 p-4 text-white">
                   <div className="text-2xl">🌍</div>
                   <p className="mt-2 text-sm text-slate-200">Region</p>
                   <p className="text-xl font-extrabold">SG • AU • CA • UK</p>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </header>
 
       {/* Plans */}
       <div id="plans" />
       <Section title="OVH VPS AMD VLE" tag="Performa Ryzen" description="Keseimbangan performa dan harga. Cocok untuk website, bot, dan microservices.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {amdVLE.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-violet-500/20 to-fuchsia-500/20" border="border-violet-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-violet-500/20 to-fuchsia-500/20" border="border-violet-400/30" />
           ))}
-        </div>
-        <p className="mt-4 text-slate-300">Pilihan region banyak.</p>
+        </motion.div>
+        <motion.p className="mt-4 text-slate-300" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
+          Pilihan region banyak.
+        </motion.p>
       </Section>
 
       <Section title="VPS OVH INTEL" tag="Stabil & Andal" description="Platform Intel dengan opsi resource fleksibel.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {intelOVH.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-sky-500/20 to-blue-500/20" border="border-sky-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-sky-500/20 to-blue-500/20" border="border-sky-400/30" />
           ))}
-        </div>
+        </motion.div>
       </Section>
 
       <Section title="VULTR VPS" tag="Jaringan Global" description="Harga kompetitif, bandwidth besar, performa konsisten.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {vultr.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-cyan-500/20 to-emerald-500/20" border="border-cyan-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-cyan-500/20 to-emerald-500/20" border="border-cyan-400/30" />
           ))}
-        </div>
-        <p className="mt-4 text-slate-300">Pilihan region banyak.</p>
+        </motion.div>
+        <motion.p className="mt-4 text-slate-300" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
+          Pilihan region banyak.
+        </motion.p>
       </Section>
 
       <Section title="LINODE VPS" tag="Network Kencang" description="SSD cepat, bandwidth melimpah, cocok untuk aplikasi produksi ringan.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {linode.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-emerald-500/20 to-teal-500/20" border="border-emerald-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-emerald-500/20 to-teal-500/20" border="border-emerald-400/30" />
           ))}
-        </div>
+        </motion.div>
       </Section>
 
       <Section title="VPS SATUAN KVM" tag="Fleksibel" description="Aktif 6 bulan, bisa diperpanjang. Ideal untuk eksperimen atau workload sementara.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {kvmSatuan.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-amber-500/20 to-pink-500/20" border="border-amber-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-amber-500/20 to-pink-500/20" border="border-amber-400/30" />
           ))}
-        </div>
+        </motion.div>
       </Section>
 
       <Section title="PAKET KVM SERVER" tag="Hemat Skala" description="Paket gabungan, resource bisa dibagi sesuai kebutuhan.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {kvmPaket.map((p, i) => (
-            <PlanCard key={i} {...p} accent="from-fuchsia-500/20 to-rose-500/20" border="border-fuchsia-400/30" />
+            <PlanCard key={i} {...p} i={i} accent="from-fuchsia-500/20 to-rose-500/20" border="border-fuchsia-400/30" />
           ))}
-        </div>
-        <div className="mt-4 rounded-xl border border-white/15 bg-white/5 p-4 text-slate-200">
+        </motion.div>
+        <motion.div className="mt-4 rounded-xl border border-white/15 bg-white/5 p-4 text-slate-200" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
           Paket KVM adalah kumpulan resource (RAM/CPU/Storage) yang dapat dibagi menjadi beberapa VPS. Contoh: 5 VPS berbagi 10GB RAM bisa juga dijadikan 3 VPS atau 1 VPS (tergantung pembagian).
-        </div>
+        </motion.div>
       </Section>
 
       <Section title="SELLING VPS" tag="Bulanan" description="Opsi bulanan fleksibel dengan range spesifikasi luas.">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {sellingVps.map((s, i) => (
-            <div key={i} className="rounded-2xl border border-white/15 bg-white/5 p-5 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/10">
+            <motion.div key={i} variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-white/15 bg-white/5 p-5 text-white backdrop-blur">
               <div className="text-sm text-slate-300">{s.spec}</div>
               <div className="mt-2 text-xl font-extrabold">{s.price}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        </motion.div>
+        <motion.div className="mt-4 grid gap-3 sm:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           <Badge color="from-sky-600 to-blue-600">Garansi 30 Hari</Badge>
           <Badge color="from-emerald-600 to-teal-600">Per 3 Bulan • 6 Bulan • 1 Tahun</Badge>
           <Badge color="from-indigo-600 to-fuchsia-600">Anti DDoS • Dedicated Server</Badge>
-        </div>
-        <p className="mt-3 text-sm text-slate-400">Harga dapat berubah sewaktu-waktu.</p>
+        </motion.div>
+        <motion.p className="mt-3 text-sm text-slate-400" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>Harga dapat berubah sewaktu-waktu.</motion.p>
       </Section>
 
       <Section title="INFO STOK DO BIL CC" tag="Stok Khusus" description="VPS CHR Unmetered (Singapura & Indonesia)">
-        <div className="grid gap-6 sm:grid-cols-2">
+        <motion.div className="grid gap-6 sm:grid-cols-2" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {chrStock.map((c, i) => (
-            <div key={i} className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white backdrop-blur">
+            <motion.div key={i} variants={fadeInUp} whileHover={{ y: -4 }} className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white backdrop-blur">
               <div className="text-sm text-slate-300">{c.region}</div>
               <div className="mt-2 text-slate-200">{c.spec}</div>
               <div className="mt-3 text-xl font-extrabold">{c.price}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </Section>
 
       {/* Recommendation */}
       <section id="recommend" className="mx-auto w-full max-w-6xl px-4 py-12">
-        <div className="rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-indigo-600/10 to-fuchsia-600/10 p-8 text-white backdrop-blur">
+        <motion.div className="rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-indigo-600/10 to-fuchsia-600/10 p-8 text-white backdrop-blur" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
           <div className="mb-4">
             <Badge color="from-indigo-600 to-fuchsia-600">Rekomendasi</Badge>
           </div>
@@ -586,33 +647,33 @@ export default function App() {
           <p className="mt-2 text-slate-200">
             Tidak ada satu "terbaik" untuk semua. Pilihan terbaik bergantung pada kebutuhan:
           </p>
-          <ul className="mt-4 grid gap-3 text-slate-200 md:grid-cols-2">
-            <li className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Budget & pemula:</span> VULTR 1 vCPU / 1–2 GB RAM — cukup untuk website ringan, bot kecil, dan testing.</li>
-            <li className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Keseimbangan performa:</span> OVH AMD VLE 4 vCPU / 4 GB RAM — performa solid, bandwidth besar, cocok untuk app kecil-menengah.</li>
-            <li className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Produksi menengah:</span> LINODE 2–4 CPU / 4–8 GB RAM — jaringan kencang dan stabil untuk trafik lebih tinggi.</li>
-            <li className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Kinerja maksimal:</span> OVH AMD VLE 16 CPU / 16 GB RAM — untuk workload berat, game server kecil, atau banyak container.</li>
-          </ul>
+          <motion.ul className="mt-4 grid gap-3 text-slate-200 md:grid-cols-2" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
+            <motion.li variants={fadeInUp} className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Budget & pemula:</span> VULTR 1 vCPU / 1–2 GB RAM — cukup untuk website ringan, bot kecil, dan testing.</motion.li>
+            <motion.li variants={fadeInUp} className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Keseimbangan performa:</span> OVH AMD VLE 4 vCPU / 4 GB RAM — performa solid, bandwidth besar, cocok untuk app kecil-menengah.</motion.li>
+            <motion.li variants={fadeInUp} className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Produksi menengah:</span> LINODE 2–4 CPU / 4–8 GB RAM — jaringan kencang dan stabil untuk trafik lebih tinggi.</motion.li>
+            <motion.li variants={fadeInUp} className="rounded-xl border border-white/10 bg-white/5 p-4"><span className="font-semibold">Kinerja maksimal:</span> OVH AMD VLE 16 CPU / 16 GB RAM — untuk workload berat, game server kecil, atau banyak container.</motion.li>
+          </motion.ul>
           <p className="mt-4 text-sm text-slate-300">Pilih region terdekat dengan pengguna (SG/ AU/ CA/ UK) untuk latency terbaik.</p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer / Contact */}
       <footer className="mx-auto w-full max-w-6xl px-4 pb-16">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white backdrop-blur">
+        <motion.div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white backdrop-blur" variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h4 className="text-xl font-extrabold">Tertarik membeli?</h4>
               <p className="mt-1 text-slate-300">Kontak untuk pembelian, paket custom, atau pertanyaan lainnya.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <a href="#" className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-white shadow-lg shadow-emerald-600/20 transition hover:scale-[1.02]">Chat WhatsApp</a>
-              <a href="#" className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-white transition hover:bg-white/10">Telegram</a>
+              <motion.a whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} href="#" className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-white shadow-lg shadow-emerald-600/20">Chat WhatsApp</motion.a>
+              <motion.a whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} href="#" className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-white">Telegram</motion.a>
             </div>
           </div>
           <div className="mt-4 text-xs text-slate-400">
             Garansi 30 hari selama VPS aktif dan tidak abuse. Harga dapat berubah sewaktu-waktu.
           </div>
-        </div>
+        </motion.div>
       </footer>
     </div>
   )
